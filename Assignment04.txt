@@ -1,0 +1,52 @@
+CREATE TABLE borrower (
+rollno int,
+name varchar(50),
+issuedate DATE,
+bookName VARCHAR(50),
+status CHAR);
+
+SELECT * FROM borrower;
+
+DESC borrower;
+
+INSERT INTO borrower VALUES (73, 'Arpit Taksande', '01-Jan-2023', 'Let us C', 'I');
+INSERT INTO borrower VALUES (75, 'Suraj Yeola', '01-Aug-2024', 'DBMS', 'R');
+INSERT INTO borrower VALUES (58, 'Atharva Pate', '12-Jul-2024', 'PLSQL', 'I');
+
+CREATE TABLE fine (
+roll INT, 
+idate DATE, 
+famount INT);
+
+DESC fine;
+
+SELECT * FROM fine;
+
+DECLARE  
+rolln INT;
+famt INT:=0;
+isdate DATE;
+days INT;
+sta CHAR(1);
+
+BEGIN
+  rolln:=:rolln;
+  SELECT issuedate,status INTO isdate,sta FROM borrower WHERE rollno=rolln;
+  IF sta='I' THEN
+   days := SYSDATE()- isdate;
+   DBMS_OUTPUT.PUT_LINE('No of days' || days);
+   UPDATE borrower SET status='R' WHERE rollno=rolln;
+   IF (days >= 15 AND days <= 30) THEN 
+      famt:=(days-15)*5;
+   ELSIF (days >30) THEN
+      famt:=((days-30)*50);
+   END IF;
+   DBMS_OUTPUT.PUT_LINE('Fine amount' || famt);
+   INSERT INTO fine VALUES (rolln,SYSDATE(),famt);
+ ELSE
+   DBMS_OUTPUT.PUT_LINE('Status is R');
+ END IF;
+
+EXCEPTION WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE(' Roll no does not exist');
+END;

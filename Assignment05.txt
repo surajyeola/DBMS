@@ -1,0 +1,42 @@
+DROP TABLE employee;
+CREATE TABLE employee1 (id INT, name VARCHAR(50), salary NUMBER, hire_date DATE);
+INSERT INTO employee1 VALUES (1, 'Suraj Yeola', 4800000, '2-Jan-2000');
+INSERT INTO employee1 VALUES (2, 'Arpit Taksande', 1500000, '2-Jan-2020');
+INSERT INTO employee1 VALUES (3, 'Sanchit Shelke', 3600000, '2-Jul-2015');
+SELECT * FROM employee1;
+DECLARE 
+    cursor ecur IS SELECT * FROM employee1;
+    erec ecur%ROWTYPE;
+BEGIN
+    OPEN ecur;
+    LOOP
+        FETCH ecur INTO erec;
+        EXIT WHEN ecur%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE(erec.id||' '||erec.name||' '||erec.salary);
+    END LOOP;
+    CLOSE ecur;
+END;
+
+DECLARE 
+    cursor ecur IS SELECT * FROM employee1;
+    erec ecur%ROWTYPE;
+    yr NUMBER;
+    incentive NUMBER:=0;
+BEGIN
+    open ecur;
+    LOOP
+        FETCH ecur INTO erec;
+	EXIT WHEN ecur%NOTFOUND;
+	yr:=(SYSDATE()-erec.hire_date)/365;
+	IF yr>5 THEN
+	    incentive:=erec.salary*0.05;
+	ELSE 
+	    IF yr>10 THEN
+		incentive:=erec.salary*0.1;
+	    END IF;
+        END IF;
+	DBMS_OUTPUT.PUT_LINE(erec.id||' '||erec.name||' '||erec.salary);
+	DBMS_OUTPUT.PUT_LINE('Incentive'||incentive);
+    END LOOP;
+    CLOSE ecur;
+END;

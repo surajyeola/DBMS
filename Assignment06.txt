@@ -1,0 +1,35 @@
+CREATE TABLE student1 (roll NUMBER, name VARCHAR(50));
+INSERT INTO student1 VALUES (1, 'Suraj Yeola');
+INSERT INTO student1 VALUES (2, 'Arpit Taksande');
+SELECT * FROM student1;
+CREATE TABLE student_audit (roll NUMBER, name VARCHAR(50), action VARCHAR(50), cdate DATE);
+
+CREATE OR REPLACE TRIGGER stu_trigger
+AFTER UPDATE 
+ON student1
+FOR EACH ROW 
+BEGIN
+    INSERT INTO student_audit VALUES 
+    (:old.roll, :old.name, 'Update', SYSDATE());
+END;
+
+UPDATE student1 SET name='Ravi Shankar' WHERE roll=2;
+SELECT * FROM student_audit;
+
+CREATE OR REPLACE TRIGGER stu_trigger
+AFTER UPDATE OR DELETE
+ON student1
+FOR EACH ROW
+BEGIN
+    IF UPDATING THEN
+        INSERT INTO student_audit VALUES
+        (:old.roll, :old.name, 'Update', SYSDATE());
+    END IF;    
+    IF DELETING THEN
+        INSERT INTO student_audit VALUES 
+        (:old.roll, :old.name, 'Delete', SYSDATE());
+    END IF;
+END;
+
+UPDATE student1 SET name='Kishor Kumar' WHERE roll=2;
+DELETE FROM student1 WHERE roll=2;
