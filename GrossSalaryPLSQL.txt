@@ -1,0 +1,91 @@
+Write a PL/SQL code to calculate Gross and net salary of the employee.
+Employee (Empid, Name, Basic salary, type). 
+Type may be Permanent or temporary. 
+For Permanent employees following is the calculation for salary 
+DA - 115% of Basic salary 
+HRA - 12% of basic salary (if HRA is > 20000 then it will be considered as 20000 only) 
+Calculate Gross salary by adding DA and HRA 
+Deductions are: 
+Income tax -2000 Rs 
+Net salary= Gross Salary - Deductions 
+For Temporary Only basic salary and deductions are there  
+Prepare a salary table for all
+
+  
+-- Step 1: Create the Employee table
+CREATE TABLE Employee (
+    Empid NUMBER PRIMARY KEY,
+    Name VARCHAR2(100),
+    Basic_salary NUMBER,
+    Type VARCHAR2(10) CHECK (Type IN ('Permanent', 'Temporary'))
+);
+
+-- Step 2: Insert some sample data into Employee table
+INSERT INTO Employee (Empid, Name, Basic_salary, Type) VALUES (1, 'John Doe', 30000, 'Permanent');
+INSERT INTO Employee (Empid, Name, Basic_salary, Type) VALUES (2, 'Jane Smith', 15000, 'Temporary');
+INSERT INTO Employee (Empid, Name, Basic_salary, Type) VALUES (3, 'Bob Brown', 50000, 'Permanent');
+
+-- Step 3: Create the Salary table
+CREATE TABLE Salary (
+    Empid NUMBER REFERENCES Employee(Empid),
+    Gross_salary NUMBER,
+    Net_salary NUMBER
+);
+
+-- Step 4: Write the PL/SQL code block to calculate gross and net salary for each employee
+DECLARE
+    -- Variable declarations
+    emp_id NUMBER;
+    emp_name VARCHAR2(100);
+    basic_salary NUMBER;
+    emp_type VARCHAR2(10);
+    DA NUMBER;
+    HRA NUMBER;
+    gross_salary NUMBER;
+    deductions NUMBER := 2000;
+    net_salary NUMBER;
+    
+    -- Cursor to fetch employee data
+    CURSOR emp_cursor IS
+        SELECT Empid, Name, Basic_salary, Type FROM Employee;
+
+BEGIN
+    -- Loop through each employee in the cursor
+    FOR emp_record IN emp_cursor LOOP
+        emp_id := emp_record.Empid;
+        emp_name := emp_record.Name;
+        basic_salary := emp_record.Basic_salary;
+        emp_type := emp_record.Type;
+        
+        -- Salary calculation based on employee type
+        IF emp_type = 'Permanent' THEN
+            -- Calculate DA (115% of basic salary)
+            DA := basic_salary * 1.15;
+            
+            -- Calculate HRA (12% of basic salary, capped at 20000)
+            HRA := basic_salary * 0.12;
+            IF HRA > 20000 THEN
+                HRA := 20000;
+            END IF;
+            
+            -- Calculate Gross Salary
+            gross_salary := basic_salary + DA + HRA;
+        ELSE
+            -- For Temporary employees, gross salary is just the basic salary
+            gross_salary := basic_salary;
+        END IF;
+        
+        -- Calculate Net Salary
+        net_salary := gross_salary - deductions;
+        
+        -- Insert the calculated values into Salary table
+        INSERT INTO Salary (Empid, Gross_salary, Net_salary)
+        VALUES (emp_id, gross_salary, net_salary);
+    END LOOP;
+
+    -- Commit the transaction
+    COMMIT;
+    
+    DBMS_OUTPUT.PUT_LINE('Salary calculations completed successfully.');
+END;
+/

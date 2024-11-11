@@ -1,0 +1,51 @@
+Write a PL/SQL code block to calculate the area and perimeter of a circle by imputing range for radius as r1 & r2. 
+Store the radius and the corresponding values of the calculated area and perimeter in an empty table named areas, consisting of three columns, radius and area, perimeter. 
+Use exception handling for checking wrong range values.
+
+-- Step 1: Create the areas table
+CREATE TABLE areas (
+    radius NUMBER,
+    area NUMBER,
+    perimeter NUMBER
+);
+
+-- Step 2: Write the PL/SQL code block to calculate area and perimeter of a circle
+DECLARE
+    -- Variable declarations
+    r1 NUMBER := 3;  -- Replace with desired start radius
+    r2 NUMBER := 10; -- Replace with desired end radius
+    radius NUMBER;
+    area NUMBER;
+    perimeter NUMBER;
+    invalid_range EXCEPTION;
+
+BEGIN
+    -- Exception handling for invalid range
+    IF r1 > r2 OR r1 <= 0 OR r2 <= 0 THEN
+        RAISE invalid_range;
+    END IF;
+    
+    -- Loop through each radius from r1 to r2
+    FOR radius IN r1..r2 LOOP
+        -- Calculate area and perimeter
+        area := 3.14159 * radius * radius;
+        perimeter := 2 * 3.14159 * radius;
+        
+        -- Insert the radius, area, and perimeter into the areas table
+        INSERT INTO areas (radius, area, perimeter)
+        VALUES (radius, area, perimeter);
+        
+        -- Optional output
+        DBMS_OUTPUT.PUT_LINE('Radius: ' || radius || 
+                             ', Area: ' || area || 
+                             ', Perimeter: ' || perimeter);
+    END LOOP;
+
+    -- Commit the transaction
+    COMMIT;
+
+EXCEPTION
+    WHEN invalid_range THEN
+        DBMS_OUTPUT.PUT_LINE('Error: Invalid range for radius. Ensure r1 <= r2 and both are greater than 0.');
+END;
+/

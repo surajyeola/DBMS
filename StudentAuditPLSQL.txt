@@ -1,0 +1,56 @@
+Database Trigger (All Types: Row level and Statement level triggers, Before and After Triggers). 
+Write a database trigger on the student table. 
+The System should keep track of the records that are being  updated  or  deleted.  
+The  old  value  of  updated  or  deleted  records  should  be  added  in the Student_Audit table (Action may be delete or update), date of action should be recorded.
+Student(roll, name) 
+Student_Audit (roll, name, action, date) 
+
+-- Step 1: Create the Student table
+CREATE TABLE Student (
+    roll NUMBER PRIMARY KEY,
+    name VARCHAR2(100)
+);
+
+-- Step 2: Create the Student_Audit table to keep track of updates and deletions
+CREATE TABLE Student_Audit (
+    roll NUMBER,
+    name VARCHAR2(100),
+    action VARCHAR2(10), -- Will store 'UPDATE' or 'DELETE'
+    action_date DATE
+);
+
+-- Step 3: Create a BEFORE UPDATE Trigger for tracking updates
+CREATE OR REPLACE TRIGGER before_update_student
+BEFORE UPDATE ON Student
+FOR EACH ROW
+BEGIN
+    -- Insert the old values into Student_Audit table
+    INSERT INTO Student_Audit (roll, name, action, action_date)
+    VALUES (:OLD.roll, :OLD.name, 'UPDATE', SYSDATE);
+END;
+/
+
+-- Step 4: Create a BEFORE DELETE Trigger for tracking deletions
+CREATE OR REPLACE TRIGGER before_delete_student
+BEFORE DELETE ON Student
+FOR EACH ROW
+BEGIN
+    -- Insert the old values into Student_Audit table
+    INSERT INTO Student_Audit (roll, name, action, action_date)
+    VALUES (:OLD.roll, :OLD.name, 'DELETE', SYSDATE);
+END;
+/
+
+-- Optionally, test the triggers by performing UPDATE and DELETE operations
+-- Insert sample data into Student table
+INSERT INTO Student (roll, name) VALUES (1, 'John Doe');
+INSERT INTO Student (roll, name) VALUES (2, 'Jane Smith');
+
+-- Perform an update operation (this will trigger before_update_student)
+UPDATE Student SET name = 'John A. Doe' WHERE roll = 1;
+
+-- Perform a delete operation (this will trigger before_delete_student)
+DELETE FROM Student WHERE roll = 2;
+
+-- Query the Student_Audit table to verify results
+SELECT * FROM Student_Audit;

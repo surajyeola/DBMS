@@ -1,0 +1,44 @@
+Write a PL/SQL code block to calculate the area and perimeter of a rectangle for a value of length varying from 10 to 20 and breadth varying from 5 to 10.  
+Store the length and breadth and the corresponding values of the calculated area and perimeter in an empty table named areas, consisting of three  columns, length, breadth  and area. 
+
+-- Step 1: Create the areas table
+CREATE TABLE areas (
+    length NUMBER,
+    breadth NUMBER,
+    area NUMBER
+);
+
+-- Step 2: Write the PL/SQL code block to calculate area and perimeter
+DECLARE
+    -- Variable declarations
+    length NUMBER;
+    breadth NUMBER;
+    area NUMBER;
+    perimeter NUMBER;
+BEGIN
+    -- Loop through each value of length from 10 to 20
+    FOR length IN 10..20 LOOP
+        -- Loop through each value of breadth from 5 to 10
+        FOR breadth IN 5..10 LOOP
+            -- Calculate area and perimeter
+            area := length * breadth;
+            perimeter := 2 * (length + breadth);
+            
+            -- Insert the length, breadth, and area into the areas table
+            INSERT INTO areas (length, breadth, area)
+            VALUES (length, breadth, area);
+            
+            -- Optionally, you can output the calculated values
+            DBMS_OUTPUT.PUT_LINE('Length: ' || length || 
+                                 ', Breadth: ' || breadth || 
+                                 ', Area: ' || area || 
+                                 ', Perimeter: ' || perimeter);
+        END LOOP;
+    END LOOP;
+
+    -- Commit the transaction
+    COMMIT;
+    
+    DBMS_OUTPUT.PUT_LINE('Area and perimeter calculations completed successfully.');
+END;
+/
